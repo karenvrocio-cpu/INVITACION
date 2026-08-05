@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mis 15 Años - Krishna Isabeli</title>
     
-    <!-- Metadatos de color -->
+    <!-- Metadatos y Favicon arreglado -->
     <meta name="theme-color" content="#050814">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Soluciona el error 404 de favicon -->
+    <link rel="apple-touch-icon" href="./icon.svg">
     
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -195,12 +197,10 @@
     </div>
 
     <script>
-        // ==========================================
-        // PEGA AQUÍ LA NUEVA URL DE TU GOOGLE APPS SCRIPT
-        // ==========================================
+        // URL de tu Google Apps Script ya integrada:
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhUeSNsERgA8gtu7JhFdNOvKWRGRmL2clhodaqcx0JG5AC-qzV6xcdke6eaWpgvOcH/exec";
 
-        // Animaciones Scroll (Optimizadas)
+        // Animaciones Scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } });
         }, { threshold: 0.1 });
@@ -217,8 +217,8 @@
             starsContainer.appendChild(star);
         }
 
-        // YouTube
-        const YT_CONFIG = { videoUrl: "https://youtu.be/hDMorh9y66c?si=1VxHd52U-zLoVFUl", startTime: 0 };
+        // YouTube (Corregido el origin de DOMWindow)
+        const YT_CONFIG = { videoUrl: "https://youtu.be/hDMorh9y66c", startTime: 0 };
         function getYTId(url) { const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/); return (match && match[2].length >= 11) ? match[2].substring(0, 11) : null; }
         const videoId = getYTId(YT_CONFIG.videoUrl);
         var tag = document.createElement('script'); tag.src = "https://www.youtube.com/iframe_api";
@@ -226,7 +226,17 @@
         
         var player; var audioStarted = false;
         function onYouTubeIframeAPIReady() {
-            if(videoId) { player = new YT.Player('yt-player-container', { height: '1', width: '1', videoId: videoId, playerVars: { 'playsinline': 1, 'start': YT_CONFIG.startTime, 'controls': 0 }}); }
+            if(videoId) { 
+                player = new YT.Player('yt-player-container', { 
+                    height: '1', width: '1', videoId: videoId, 
+                    playerVars: { 
+                        'playsinline': 1, 
+                        'start': YT_CONFIG.startTime, 
+                        'controls': 0,
+                        'origin': window.location.origin // Esto soluciona el error de "DOMWindow"
+                    }
+                }); 
+            }
         }
 
         function startExperience() {
@@ -247,7 +257,7 @@
             document.getElementById("s").innerText = Math.floor((dist % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }, 1000);
 
-        // Lógica Base de Datos (Google Sheets)
+        // Lógica de Modales
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -267,8 +277,7 @@
             const loader = document.getElementById('galleryLoader');
             gallery.innerHTML = ''; loader.style.display = 'block';
 
-            // Agregamos redirect: 'follow' para evitar bloqueos CORS en GET
-            fetch(APPS_SCRIPT_URL, { redirect: "follow" })
+            fetch(APPS_SCRIPT_URL)
             .then(res => res.json())
             .then(data => {
                 loader.style.display = 'none';
@@ -288,7 +297,8 @@
             })
             .catch(err => {
                 loader.style.display = 'none';
-                gallery.innerHTML = '<p style="color:red; text-align:center;">Error al cargar. Revisa que tu URL de Apps Script esté pegada correctamente y el despliegue esté como "Cualquier persona".</p>';
+                gallery.innerHTML = '<p style="color:red; text-align:center;">Error al cargar. Asegúrate de tener conexión.</p>';
+                console.error(err);
             });
         }
 
@@ -301,8 +311,7 @@
             formData.append('action', 'delete');
             formData.append('id', id);
 
-            // Agregamos redirect: 'follow'
-            fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData, redirect: 'follow' })
+            fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'deleted') {
@@ -349,8 +358,7 @@
                 formData.append('message', msg);
                 formData.append('image', base64Img);
 
-                // Agregamos redirect: 'follow'
-                fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData, redirect: 'follow' })
+                fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
                     btn.style.display = 'block'; loader.style.display = 'none';
@@ -360,10 +368,11 @@
                         document.getElementById('guestMessage').value = '';
                         fileInput.value = '';
                         closeModal('create-memory-modal');
-                    } else { alert("Hubo un error al guardar."); }
+                    } else { alert("Error de Google: " + (data.msg || 'Desconocido')); }
                 }).catch(err => {
                     btn.style.display = 'block'; loader.style.display = 'none';
-                    alert("Error. Asegúrate de haber desplegado tu Apps Script correctamente.");
+                    alert("No se pudo conectar. Verifica tu internet.");
+                    console.error(err);
                 });
             });
         });
