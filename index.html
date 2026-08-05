@@ -67,7 +67,7 @@
             100% { opacity: 1; transform: scale(1.5) rotate(45deg); box-shadow: 0 0 10px #fff, 0 0 20px var(--accent-blue); }
         }
 
-        /* Princess Animated Background (Actualizado a WOLFCHAN.JPG) */
+        /* Princess Animated Background (WOLFCHAN.JPG) */
         .princess-bg {
             width: 100%;
             height: 450px;
@@ -136,7 +136,7 @@
         .btn { display: inline-block; background: linear-gradient(135deg, var(--accent) 0%, #d4af37 100%); color: var(--bg-dark); padding: 15px 30px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: 0.3s; box-shadow: 0 5px 15px rgba(249, 216, 167, 0.3); margin-top: 10px; cursor: pointer; border:none; }
         .btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(249, 216, 167, 0.5); }
         
-        /* Inputs y Galeria (Nuevos) */
+        /* Inputs y Galeria (Recuerdos) */
         .custom-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; margin-bottom: 15px; border-radius: 10px; font-family: 'Montserrat', sans-serif; font-size: 0.95rem; }
         .custom-input::placeholder { color: #aaa; }
         .memory-card { background: rgba(0,0,0,0.4); border-radius: 15px; padding: 15px; text-align: left; border: 1px solid rgba(249, 216, 167, 0.3); }
@@ -213,7 +213,7 @@
                 <div style="color: #ccc; margin-bottom: 10px;">Color azul reservado para la quinceañera</div>
             </div>
 
-            <!-- SECCIÓN LLUVIA DE SOBRES ACTUALIZADA -->
+            <!-- SECCIÓN LLUVIA DE SOBRES -->
             <div class="info-card">
                 <i class="fas fa-gift icon"></i>
                 <div class="card-title">Lluvia de Sobres</div>
@@ -292,7 +292,7 @@
 
         // --- 2. CONFIGURACIÓN DE YOUTUBE ---
         const YT_CONFIG = {
-            videoUrl: "https://www.youtube.com/watch?v=syF2z1qK5G8", 
+            videoUrl: "https://youtu.be/hDMorh9y66c?si=1VxHd52U-zLoVFUl", // ¡Aquí está la nueva canción!
             startTime: 0,
             duration: 0
         };
@@ -300,7 +300,7 @@
         function getYTId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
             const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
+            return (match && match[2].length >= 11) ? match[2].substring(0, 11) : null;
         }
 
         const videoId = getYTId(YT_CONFIG.videoUrl);
@@ -363,7 +363,6 @@
             document.getElementById("m").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
             document.getElementById("s").innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
         }, 1000);
-
 
         // --- 4. LÓGICA DEL LIBRO DE RECUERDOS (LOCAL STORAGE) ---
         const memoryGallery = document.getElementById('memoryGallery');
