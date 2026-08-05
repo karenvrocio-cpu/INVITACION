@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mis 15 Años - Krishna Isabeli</title>
     
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="./manifest.json">
+    <!-- Metadatos de color -->
     <meta name="theme-color" content="#050814">
-    <link rel="apple-touch-icon" href="./icon.svg">
     
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,16 +24,13 @@
 
         .app-container { width: 100%; max-width: 450px; background: linear-gradient(135deg, var(--bg-dark) 0%, #050814 100%); position: relative; padding-bottom: 50px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
 
-        /* Animaciones Optimizadas */
         .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.6s ease-out; will-change: transform, opacity; }
         .animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
 
-        /* Estrellas (Menos cantidad para optimizar) */
         .stars-container { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--duration) ease-in-out infinite alternate; will-change: transform, opacity; opacity: 0; }
         @keyframes twinkle { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 0.8; transform: scale(1.2); } }
 
-        /* Princess Background (Optimizado) */
         .princess-bg { width: 100%; height: 480px; background-color: var(--bg-dark); background-image: linear-gradient(to bottom, rgba(5,8,20,0) 40%, rgba(5,8,20,1) 100%), url('WOLFCHAN.jpg'); background-position: center; background-size: cover; position: relative; z-index: 1; animation: breathe 6s ease-in-out infinite alternate; will-change: transform; border-bottom: 2px solid rgba(249, 216, 167, 0.2); }
         @keyframes breathe { 0% { transform: scale(1); } 100% { transform: scale(1.03); } }
 
@@ -201,9 +196,9 @@
 
     <script>
         // ==========================================
-        // PEGA AQUÍ LA URL DE TU GOOGLE APPS SCRIPT
+        // PEGA AQUÍ LA NUEVA URL DE TU GOOGLE APPS SCRIPT
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzyqZoXlQXJD0_AZ4q1AVWog_oZO3NHHwG92IJHI_gssq8aSXNZIavHMozTZ7ewPeuA/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiin8G-Ul9977HodYC5wu1lrR1xy33BPHQFul6FP4JPs0cPw_Ja5YoXR3ERP2lS6PK/exec";
 
         // Animaciones Scroll (Optimizadas)
         const observer = new IntersectionObserver((entries) => {
@@ -272,7 +267,8 @@
             const loader = document.getElementById('galleryLoader');
             gallery.innerHTML = ''; loader.style.display = 'block';
 
-            fetch(APPS_SCRIPT_URL)
+            // Agregamos redirect: 'follow' para evitar bloqueos CORS en GET
+            fetch(APPS_SCRIPT_URL, { redirect: "follow" })
             .then(res => res.json())
             .then(data => {
                 loader.style.display = 'none';
@@ -292,7 +288,7 @@
             })
             .catch(err => {
                 loader.style.display = 'none';
-                gallery.innerHTML = '<p style="color:red; text-align:center;">Error al cargar. Revisa el enlace del script.</p>';
+                gallery.innerHTML = '<p style="color:red; text-align:center;">Error al cargar. Revisa que tu URL de Apps Script esté pegada correctamente y el despliegue esté como "Cualquier persona".</p>';
             });
         }
 
@@ -305,7 +301,8 @@
             formData.append('action', 'delete');
             formData.append('id', id);
 
-            fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData })
+            // Agregamos redirect: 'follow'
+            fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData, redirect: 'follow' })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'deleted') {
@@ -314,19 +311,19 @@
             }).catch(e => { alert("Error de conexión"); btnElement.innerHTML = '<i class="fas fa-trash"></i>'; });
         }
 
-        // Comprimir imagen intenso (para que entre en Google Sheets sin problema)
+        // Comprimir imagen
         function resizeImage(file, callback) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    const MAX_SIZE = 400; // Reducido para Sheets
+                    const MAX_SIZE = 400; 
                     let width = img.width; let height = img.height;
                     if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
                     else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                     const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
                     const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
-                    callback(canvas.toDataURL('image/jpeg', 0.5)); // Calidad 0.5 reduce muchísimo el peso
+                    callback(canvas.toDataURL('image/jpeg', 0.5)); 
                 };
                 img.src = e.target.result;
             };
@@ -352,7 +349,8 @@
                 formData.append('message', msg);
                 formData.append('image', base64Img);
 
-                fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData })
+                // Agregamos redirect: 'follow'
+                fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData, redirect: 'follow' })
                 .then(res => res.json())
                 .then(data => {
                     btn.style.display = 'block'; loader.style.display = 'none';
@@ -365,7 +363,7 @@
                     } else { alert("Hubo un error al guardar."); }
                 }).catch(err => {
                     btn.style.display = 'block'; loader.style.display = 'none';
-                    alert("Error. ¿Pusiste la URL del Google Script en el código?");
+                    alert("Error. Asegúrate de haber desplegado tu Apps Script correctamente.");
                 });
             });
         });
