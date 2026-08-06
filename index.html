@@ -7,8 +7,7 @@
     
     <!-- Metadatos y Favicon arreglado -->
     <meta name="theme-color" content="#050814">
-    <link rel="icon" href="data:;base64,iVBORw0KGgo="> <!-- Soluciona el error 404 de favicon -->
-    <link rel="apple-touch-icon" href="./icon.svg">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +16,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Montserrat', sans-serif; background-color: #050814; color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; scroll-behavior: smooth; }
 
-        /* --- PANTALLA DE BIENVENIDA --- */
+        /* PANTALLA DE BIENVENIDA */
         #intro-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050814; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.8s ease; cursor: pointer; text-align: center; }
         #intro-overlay.hidden { opacity: 0; pointer-events: none; }
         .intro-text { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; color: var(--accent); margin-bottom: 20px; animation: pulse 2s infinite; will-change: transform, opacity; }
@@ -197,8 +196,8 @@
     </div>
 
     <script>
-        // URL de tu Google Apps Script ya integrada:
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxhUeSNsERgA8gtu7JhFdNOvKWRGRmL2clhodaqcx0JG5AC-qzV6xcdke6eaWpgvOcH/exec";
+        // URL de tu Google Apps Script
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRWZxJcv0GMr6WVdnltVSjAiB0DsEIBnbKOirQvdKQkMsPJaQJpMOWfjrx9-xEGYMW/exec";
 
         // Animaciones Scroll
         const observer = new IntersectionObserver((entries) => {
@@ -217,7 +216,7 @@
             starsContainer.appendChild(star);
         }
 
-        // YouTube (Corregido el origin de DOMWindow)
+        // YouTube
         const YT_CONFIG = { videoUrl: "https://youtu.be/hDMorh9y66c", startTime: 0 };
         function getYTId(url) { const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/); return (match && match[2].length >= 11) ? match[2].substring(0, 11) : null; }
         const videoId = getYTId(YT_CONFIG.videoUrl);
@@ -229,12 +228,7 @@
             if(videoId) { 
                 player = new YT.Player('yt-player-container', { 
                     height: '1', width: '1', videoId: videoId, 
-                    playerVars: { 
-                        'playsinline': 1, 
-                        'start': YT_CONFIG.startTime, 
-                        'controls': 0,
-                        'origin': window.location.origin // Esto soluciona el error de "DOMWindow"
-                    }
+                    playerVars: { 'playsinline': 1, 'start': YT_CONFIG.startTime, 'controls': 0, 'origin': window.location.origin }
                 }); 
             }
         }
@@ -297,7 +291,7 @@
             })
             .catch(err => {
                 loader.style.display = 'none';
-                gallery.innerHTML = '<p style="color:red; text-align:center;">Error al cargar. Asegúrate de tener conexión.</p>';
+                gallery.innerHTML = '<p style="color:red; text-align:center;">Error al cargar. Asegúrate de haber publicado tu App Script como NUEVA IMPLEMENTACIÓN.</p>';
                 console.error(err);
             });
         }
@@ -307,20 +301,20 @@
             if(!confirm("¿Seguro que deseas eliminar este recuerdo?")) return;
             btnElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
             
-            const formData = new URLSearchParams();
-            formData.append('action', 'delete');
-            formData.append('id', id);
-
-            fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData })
+            // Envío en formato JSON plano para evitar bloqueos
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'delete', id: id })
+            })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'deleted') {
                     btnElement.parentElement.remove();
                 } else { alert('Error al eliminar'); btnElement.innerHTML = '<i class="fas fa-trash"></i>'; }
-            }).catch(e => { alert("Error de conexión"); btnElement.innerHTML = '<i class="fas fa-trash"></i>'; });
+            }).catch(e => { alert("Error de conexión al eliminar."); btnElement.innerHTML = '<i class="fas fa-trash"></i>'; });
         }
 
-        // Comprimir imagen
+        // Comprimir imagen a Base64
         function resizeImage(file, callback) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -352,13 +346,16 @@
             btn.style.display = 'none'; loader.style.display = 'block';
             
             resizeImage(fileInput.files[0], (base64Img) => {
-                const formData = new URLSearchParams();
-                formData.append('action', 'add');
-                formData.append('name', name);
-                formData.append('message', msg);
-                formData.append('image', base64Img);
-
-                fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData })
+                // Envío directo de JSON (texto plano) que Google no bloquea con 403
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'add',
+                        name: name,
+                        message: msg,
+                        image: base64Img
+                    })
+                })
                 .then(res => res.json())
                 .then(data => {
                     btn.style.display = 'block'; loader.style.display = 'none';
@@ -368,10 +365,10 @@
                         document.getElementById('guestMessage').value = '';
                         fileInput.value = '';
                         closeModal('create-memory-modal');
-                    } else { alert("Error de Google: " + (data.msg || 'Desconocido')); }
+                    } else { alert("Error al procesar: " + (data.msg || 'Desconocido')); }
                 }).catch(err => {
                     btn.style.display = 'block'; loader.style.display = 'none';
-                    alert("No se pudo conectar. Verifica tu internet.");
+                    alert("No se pudo enviar. Verifica tu conexión a internet o asegúrate de actualizar el Google Apps Script.");
                     console.error(err);
                 });
             });
